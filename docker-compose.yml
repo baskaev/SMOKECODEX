@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: smokecodex
+      POSTGRES_PASSWORD: smokecodex
+      POSTGRES_DB: smokecodex
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://smokecodex:smokecodex@db:5432/smokecodex
+      JWT_SECRET: change-me
+      FRONTEND_URL: http://localhost:3000
+      APP_PORT: 8000
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
